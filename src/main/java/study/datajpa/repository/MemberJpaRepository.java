@@ -1,5 +1,7 @@
 package study.datajpa.repository;
 
+import java.util.List;
+import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
@@ -14,6 +16,26 @@ public class MemberJpaRepository {
     public Member save(Member member) {
         em.persist(member);
         return member;
+    }
+
+    public void delete(Member member) {
+        em.remove(member);
+    }
+
+    public List<Member> findAll() {
+        // JPQL
+        return em.createQuery("select m from Member m", Member.class).getResultList();
+    }
+
+    // 아이디 단건 조회 Optional Null 처리
+    public Optional<Member> findById(Long id) {
+        Member member = em.find(Member.class, id);
+        return Optional.ofNullable(member);
+    }
+
+    // 회원 수 세기
+    public long count() {
+        return em.createQuery("select count(m) from Member m", Long.class).getSingleResult();
     }
 
     public Member find(Long id) {
