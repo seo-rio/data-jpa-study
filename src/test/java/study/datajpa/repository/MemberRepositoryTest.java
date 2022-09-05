@@ -3,7 +3,9 @@ package study.datajpa.repository;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,5 +119,37 @@ class MemberRepositoryTest {
         for (MemberDto dto : memberDto) {
             System.out.println("dto = " + dto);
         }
+    }
+
+    @Test
+    public void findByNames() throws Exception {
+        Member m1 = new Member("AAA", 10);
+        Member m2 = new Member("BBB", 20);
+        memberRepository.save(m1);
+        memberRepository.save(m2);
+
+        List<Member> result = memberRepository.findByNames(Arrays.asList("AAA", "BBB"));
+        for (Member member : result) {
+            System.out.println("member = " + member);
+        }
+    }
+
+    @Test
+    public void returnType() throws Exception {
+        Member m1 = new Member("AAA", 10);
+        Member m2 = new Member("BBB", 20);
+        memberRepository.save(m1);
+        memberRepository.save(m2);
+
+        List<Member> aaa = memberRepository.findListByUsername("AAA");
+        for (Member member : aaa) {
+            System.out.println("Member = " + member);
+        }
+
+        Member findMember = memberRepository.findMemberByUsername("AAA");
+        System.out.println("findMember = " + findMember);
+
+        Optional<Member> result = memberRepository.findOptionalByUsername("NULL");
+        System.out.println("Result = " + result);
     }
 }
