@@ -18,11 +18,12 @@ import study.datajpa.entity.Member;
 @Rollback(false) // 결과 확인 위해 Rollback false 실무에선 데이터를 날려야하기 때문에 해당 어노테이션을 제거한다.
 class MemberJpaRepositoryTest {
 
-    @Autowired MemberJpaRepository memberJpaRepository;
+    @Autowired
+    MemberJpaRepository memberJpaRepository;
 
     @Test
     public void testMember() {
-        Member member =  new Member("memberA");
+        Member member = new Member("memberA");
 
         Member savedMember = memberJpaRepository.save(member);
         Member findMember = memberJpaRepository.find(savedMember.getId());
@@ -61,5 +62,18 @@ class MemberJpaRepositoryTest {
         long deletedCount = memberJpaRepository.count();
         assertThat(deletedCount).isEqualTo(0);
 
+    }
+
+    @Test
+    public void findByUsernameAndAgeGreaterThan() {
+        Member m1 = new Member("AAA", 10);
+        Member m2 = new Member("AAA", 20);
+        memberJpaRepository.save(m1);
+        memberJpaRepository.save(m2);
+        List<Member> result =
+            memberJpaRepository.findByUsernameAndAgeGreaterThan("AAA", 15);
+        assertThat(result.get(0).getUsername()).isEqualTo("AAA");
+        assertThat(result.get(0).getAge()).isEqualTo(20);
+        assertThat(result.size()).isEqualTo(1);
     }
 }
