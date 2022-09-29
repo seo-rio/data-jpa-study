@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import javax.persistence.EntityManager;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,8 @@ class MemberRepositoryTest {
     MemberRepository memberRepository;
     @Autowired
     TeamJpaRepository teamJpaRepository;
+    @Autowired
+    EntityManager em;
 
     @Test
     public void testMember() {
@@ -208,5 +211,62 @@ class MemberRepositoryTest {
 
         //then
         assertThat(resultCount).isEqualTo(3);
+    }
+
+    @Test
+    public void findMemberLazy() throws Exception {
+        //given
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+
+        teamJpaRepository.save(teamA);
+        teamJpaRepository.save(teamB);
+
+        Member member1 = new Member("member1", 10, teamA);
+        Member member2 = new Member("member2", 10, teamB);
+
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        em.flush();
+        em.clear();
+
+        //when
+        List<Member> members = memberRepository.findAll();
+
+        //then
+        for (Member member : members) {
+            System.out.println("Member = " + member.getUsername());
+            System.out.println("Member TeamClass = " + member.getTeam().getClass());
+            System.out.println("Member Team = " + member.getTeam().getName());
+        }
+    }
+
+    @Test
+    public void queryHint() throws Exception {
+        //given
+        Member member1 = new Member("member1", 10);
+        memberRepository.save(member1);
+        em.flush(); // flush할때 강제로 쿼리를 날린다.
+        em.clear(); // 영속성 컨텍스트를 지워버린다. (영속성 컨텍스트를 지워버리면 1차 캐시가 없기 때문에 영속성 컨텍스트에서 조회하는게 아니라 DB에서 조회해온다.)
+
+        //when
+        Member findMember = memberRepository.findReadOnlyByUsername("member1");
+        findMember.setUsername("member2");
+
+        em.flush();
+
+    }
+
+    @Test
+    public void lock() throws Exception {
+        //given
+        Member member1 = new Member("member1", 10);
+        memberRepository.save(member1);
+        em.flush(); // flush할때 강제로 쿼리를 날린다.
+        em.clear(); // 영속성 컨텍스트를 지워버린다. (영속성 컨텍스트를 지워버리면 1차 캐시가 없기 때문에 영속성 컨텍스트에서 조회하는게 아니라 DB에서 조회해온다.)
+
+        //when
+        List<Member> result = memberRepository.findLockByUsername("member1");
     }
 }
