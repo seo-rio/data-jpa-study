@@ -20,7 +20,7 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA이기 때문에 기본 생성자 필요 protected는 아무곳에서나 접근하지 못하게 하기 위해 JPA 스펙상 필요 (private은 안됨.)
 @ToString(of = {"id", "username", "age"})
 @NamedEntityGraph(name = "Member.all", attributeNodes = @NamedAttributeNode("team")) // EntityGraph를 엔티티에서 사용하는 예시 (참고용, 많이 사용 안함)
-public class Member {
+public class Member extends BaseEntity {
 
     @Id @GeneratedValue
     @Column(name = "member_id")
